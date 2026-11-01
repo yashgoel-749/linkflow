@@ -1,0 +1,41 @@
+worker_processes auto;
+pid /tmp/nginx.pid;
+error_log /dev/stderr warn;
+events { worker_connections 1024; }
+
+http {
+    include /etc/linkflow/snippets/http.conf;
+    map $host $root_upstream {
+        ${PUBLIC_HOST} frontend:8080;
+        default backend:3001;
+    }
+
+    server {
+        listen 8080 default_server;
+        server_name _;
+        include /etc/linkflow/snippets/health.conf;
+        location / { return 404; }
+    }
+
+    server {
+        listen 8080;
+        server_name ${PUBLIC_HOST};
+        include /etc/linkflow/snippets/health.conf;
+        location / { return 308 ${PUBLIC_BASE_URL}$request_uri; }
+    }
+
+    server {
+        listen 8443 ssl default_server;
+        server_name _;
+        include /etc/linkflow/snippets/tls.conf;
+        include /etc/linkflow/snippets/health.conf;
+        location / { proxy_pass http://$backend_upstream; }
+    }
+
+    server {
+        listen 8443 ssl;
+        server_name ${PUBLIC_HOST};
+        include /etc/linkflow/snippets/tls.conf;
+        include /etc/linkflow/snippets/canonical-routes.conf;
+    }
+}

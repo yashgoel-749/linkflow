@@ -1,0 +1,230 @@
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.analytics-page > * {
+  margin: 0;
+}
+.analytics-page h1 {
+  font-size: clamp(24px, 2.5vw, 34px);
+}
+.analytics-page h2 {
+  font-size: clamp(16px, 1.65vw, 20px);
+}
+.analytics-stats > section {
+  min-height: 176px;
+}
+.analytics-stats > section > div:last-child > p {
+  font-size: clamp(24px, 2.5vw, 32px);
+}
+.analytics-timeline > div:first-child {
+  margin-bottom: 12px;
+}
+.analytics-timeline > div:nth-child(2) {
+  margin-bottom: 8px;
+}
+.analytics-breakdowns > section:nth-child(-n + 2) {
+  min-height: 350px;
+}
+.analytics-breakdowns > section:nth-child(n + 3) {
+  min-height: 312px;
+}
+.analytics-breakdowns > section:first-child > div:last-child {
+  margin-top: auto;
+  padding-top: 32px;
+}
+.analytics-breakdowns > section > div:last-child {
+  margin-top: 20px;
+}
+.analytics-breakdowns .progress-track {
+  height: 6px;
+}
+@media (min-width: 900px) {
+  .analytics-shell .sidebar {
+    display: block;
+    width: clamp(196px, 20.2vw, 270px);
+  }
+  .analytics-shell .app-main {
+    margin-left: clamp(196px, 20.2vw, 270px);
+  }
+  .analytics-shell .page-content {
+    padding: 24px 18px 30px;
+  }
+  .analytics-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .analytics-breakdowns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .analytics-page > header {
+    flex-direction: row;
+    align-items: center;
+  }
+  .analytics-page > header > div:last-child {
+    max-width: 320px;
+  }
+}
+@media (min-width: 900px) and (max-width: 1100px) {
+  .analytics-shell .app-main > header button[aria-label='Open navigation'] {
+    display: none;
+  }
+  .analytics-shell .sidebar > div > div:first-child {
+    padding-bottom: 16px;
+  }
+  .analytics-page > header > div:last-child {
+    max-width: 320px;
+  }
+  .analytics-page > header > div:last-child > div {
+    padding-block: 6px;
+  }
+  .analytics-page > header select {
+    font-size: 10px;
+    min-height: 32px;
+    padding-block: 4px;
+  }
+  .analytics-stats > section > div:last-child > p > span {
+    font-size: 22px;
+  }
+  .analytics-stats > section:nth-child(2) > div:last-child > p > span {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+  .analytics-stats > section:nth-child(3) > div:last-child > p > span:first-child {
+    white-space: nowrap;
+    font-size: 22px;
+  }
+  .analytics-stats > section > div:last-child > div {
+    font-size: 9px;
+    flex-wrap: nowrap;
+  }
+  .analytics-stats > section > div:last-child > p > span:not(:first-child) {
+    font-size: 10px;
+  }
+  .analytics-timeline > div:first-child {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .analytics-timeline h2 {
+    font-size: 14px;
+  }
+  .analytics-timeline .timeline-actions {
+    gap: 4px;
+  }
+  .analytics-timeline .timeline-actions button {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+  .analytics-timeline .timeline-actions > .badge:first-child {
+    display: none;
+  }
+  .analytics-timeline .timeline-actions > .badge {
+    font-size: 9px;
+  }
+  .analytics-timeline > div:nth-child(2) p {
+    font-size: 10px;
+  }
+  .analytics-breakdowns > section:nth-child(2) > div:nth-child(2) > div {
+    padding: 8px;
+    gap: 8px;
+  }
+  .analytics-breakdowns > section:nth-child(2) > div:nth-child(2) > div > span {
+    padding: 5px;
+  }
+  .analytics-breakdowns > section:nth-child(2) > div:nth-child(2) p {
+    font-size: 9px;
+  }
+  .analytics-breakdowns > section:nth-child(2) > div:nth-child(2) p:last-child {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+  .analytics-breakdowns > section:nth-child(3) > div:nth-child(2) > div {
+    margin-block: 12px;
+  }
+  .analytics-breakdowns > section:nth-child(3) > div:nth-child(2) > div > div:first-child {
+    font-size: 9px;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .analytics-breakdowns > section:nth-child(3) > div:nth-child(2) span:first-child {
+    padding: 2px;
+  }
+  .analytics-breakdowns > section:nth-child(4) > div:nth-child(2) > div {
+    padding: 8px;
+    gap: 6px;
+  }
+  .analytics-breakdowns > section:nth-child(4) > div:nth-child(2) p {
+    font-size: 9px;
+  }
+  .analytics-breakdowns > section > div:last-child > span,
+  .analytics-breakdowns .text-link {
+    font-size: 9px;
+  }
+  .analytics-breakdowns
+    > section:first-child
+    > div:nth-child(2)
+    > div:last-child
+    > div
+    > div:first-child {
+    font-size: 9px;
+    gap: 4px;
+  }
+  .analytics-breakdowns > section:first-child .font-display {
+    font-size: 20px;
+  }
+  .analytics-shell .app-main > header {
+    height: 52px;
+    padding-inline: 18px;
+  }
+  .analytics-shell .sidebar nav a {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+  .analytics-page .section-description {
+    font-size: 10px;
+  }
+  .analytics-page > header p {
+    font-size: 11px;
+  }
+  .analytics-stats > section {
+    padding: 18px;
+  }
+  .analytics-stats .eyebrow {
+    font-size: 9px;
+  }
+  .analytics-stats > section > div:last-child > div {
+    gap: 6px;
+  }
+  .analytics-timeline,
+  .analytics-breakdowns > section {
+    padding: 18px;
+  }
+  .analytics-breakdowns > section:first-child > div:nth-child(2) {
+    gap: 10px;
+  }
+  .analytics-breakdowns > section:first-child > div:nth-child(2) > div:first-child {
+    width: 120px;
+    height: 120px;
+  }
+}
+@media (max-width: 639px) {
+  .analytics-page {
+    gap: 24px;
+  }
+  .analytics-stats > section {
+    padding: 14px;
+  }
+  .analytics-stats > section > div:last-child > p {
+    font-size: 24px;
+  }
+  .analytics-stats .eyebrow {
+    font-size: 9px;
+  }
+  .analytics-timeline [role='group'] {
+    flex-wrap: wrap;
+  }
+  .analytics-timeline > div:nth-child(2) > div {
+    flex-wrap: wrap;
+  }
+}

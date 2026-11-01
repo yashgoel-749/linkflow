@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(dbgenerated("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)"))
+  sessions     Session[]
+  domains      Domain[]
+  links        Link[]
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(dbgenerated("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)"))
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Domain {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hostname   String    @unique
+  proof      String
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(dbgenerated("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)"))
+}
+
+model Link {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  destination  String
+  slug         String
+  domain       String
+  tags         String[]  @default([])
+  category     String    @default("Uncategorized")
+  passwordHash String?
+  expiresAt    DateTime?
+  archivedAt   DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(dbgenerated("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)"))
+  updatedAt    DateTime  @updatedAt
+  events       Click[]
+  aliases      Alias[]
+  @@unique([domain, slug])
+  @@index([userId, deletedAt, createdAt])
+}
+
+// Alias rows are permanent: editing/deleting a link never makes its old alias reusable.
+model Alias {
+  domain String
+  slug   String
+  linkId String @db.Uuid
+  link   Link   @relation(fields: [linkId], references: [id], onDelete: Restrict)
+  @@id([domain, slug])
+  @@index([linkId])
+}
+
+model Click {
+  id          BigInt   @id @default(autoincrement())
+  linkId      String   @db.Uuid
+  link        Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  occurredAt  DateTime @default(dbgenerated("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)"))
+  visitorHash String
+  channel     String
+  referrer    String?
+  device      String
+  system      String
+  @@index([linkId, occurredAt])
+  @@index([occurredAt])
+}

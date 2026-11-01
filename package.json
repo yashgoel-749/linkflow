@@ -1,0 +1,63 @@
+{
+  "name": "linkflow",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "dev:api": "npm --prefix server run dev",
+    "install:api": "npm --prefix server install",
+    "build:api": "npm --prefix server run build",
+    "build:all": "npm run build:api && npm run build",
+    "build:render": "npm ci --include=dev && npm --prefix server ci --include=dev && npm run db:generate && npm run build:all",
+    "start:render": "npm run db:migrate && node server/dist/index.js",
+    "test:render": "npm --prefix server run test:frontend",
+    "test:api": "npm --prefix server test",
+    "typecheck:tests": "tsc -p tsconfig.tests.json",
+    "db:generate": "npm --prefix server run db:generate",
+    "db:migrate": "npm --prefix server run db:migrate",
+    "services:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-services.ps1 -Action start",
+    "services:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-services.ps1 -Action stop",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint .",
+    "format": "prettier --write --ignore-unknown src tests scripts docs server *.ts *.js *.json *.md",
+    "format:check": "prettier --check --ignore-unknown src tests scripts docs server *.ts *.js *.json *.md",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "recharts": "^3.8.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/node": "^22.19.0",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^16.5.0",
+    "jsqr": "^1.4.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.2.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
+  }
+}

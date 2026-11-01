@@ -1,0 +1,112 @@
+.links-page {
+  --links-spacing: 30px;
+}
+.links-page > :not(:last-child) {
+  margin-bottom: var(--links-spacing);
+}
+.links-page > header h1 {
+  font-size: 38px;
+}
+.links-page > header p {
+  max-width: 760px;
+  font-size: 16px;
+}
+.links-page > header > div:last-child {
+  max-width: 390px;
+}
+.links-stats > section {
+  min-height: 128px;
+  padding: 20px;
+}
+.links-stats > section > div:first-child {
+  position: relative;
+}
+.links-stats > section > div:first-child > span {
+  position: absolute;
+  right: 0;
+  top: 20px;
+}
+.links-stats .eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  padding-right: 20px;
+}
+.links-stats > section > p {
+  margin-top: 12px;
+}
+.links-filters .field {
+  background: var(--input);
+}
+.links-filters .select {
+  background: var(--input);
+}
+.links-page .links-table-card td {
+  padding-block: 25px;
+}
+.links-page .links-table-card td:nth-child(2) {
+  width: 45%;
+}
+.links-page .links-table-card td:nth-child(2) > div > div > p:first-child {
+  font-size: 22px;
+}
+.links-page .links-table-card td:nth-child(2) a {
+  max-width: 440px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+.links-page .links-table-card td:nth-child(2) > div > div > p:last-child {
+  margin-top: 5px;
+  font-size: 12px;
+}
+.links-page .links-table-card td:nth-child(3) button {
+  font-size: 13px;
+}
+.links-page .links-table-card .badge {
+  max-width: 150px;
+}
+.links-page .links-table-card .badge button {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.links-page .links-table-card th {
+  padding-block: 22px;
+  font-size: 12px;
+  white-space: normal;
+}
+.links-page .links-table-card footer {
+  min-height: 80px;
+}
+.links-page .links-table-card footer button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.links-page .links-table-card tbody tr:hover {
+  background: var(--elevated);
+}
+@media (max-width: 1279px) {
+  .links-page > header > div:last-child {
+    max-width: none;
+  }
+}
+@media (max-width: 639px) {
+  .links-page {
+    --links-spacing: 24px;
+  }
+  .links-page > header h1 {
+    font-size: 30px;
+  }
+  .links-page > header p {
+    font-size: 13px;
+  }
+  .links-stats > section {
+    padding: 14px;
+    min-height: 150px;
+  }
+  .links-stats .eyebrow {
+    padding-right: 0;
+    font-size: 10px;
+  }
+  .links-stats > section > div:first-child > span {
+    display: none;
+  }
+}

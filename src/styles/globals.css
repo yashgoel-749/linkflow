@@ -1,0 +1,275 @@
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --color-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+}
+
+:root {
+  color-scheme: dark;
+  --background: #0e1119;
+  --sidebar: #090c14;
+  --surface: #181b24;
+  --elevated: #242731;
+  --input: #1d202a;
+  --border: #282b36;
+  --foreground: #eeeef4;
+  --muted: #b9b9c8;
+  --subtle: #808292;
+  --accent: #8780ff;
+  --accent-soft: #c2b8ff;
+  --success: #36d5ad;
+  --danger: #f496bc;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #f4f5fa;
+  --sidebar: #ffffff;
+  --surface: #ffffff;
+  --elevated: #eeedf5;
+  --input: #f4f4f9;
+  --border: #e4e3ed;
+  --foreground: #222336;
+  --muted: #626377;
+  --subtle: #7c7d90;
+  --accent: #7770ee;
+  --accent-soft: #6551bc;
+  --success: #128265;
+  --danger: #bb3e76;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    @apply m-0 bg-background font-sans text-sm text-foreground antialiased;
+  }
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled),
+  select {
+    cursor: pointer;
+  }
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+  button {
+    @apply transition-colors;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-bold;
+  }
+  h1 {
+    @apply text-[32px] leading-tight tracking-[-.7px] sm:text-[36px];
+  }
+  h2 {
+    @apply text-xl leading-snug tracking-[-.2px];
+  }
+  h3 {
+    @apply text-lg;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+  ::selection {
+    background: #8780ff55;
+  }
+  input[type='checkbox'] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+  }
+  input[type='date'] {
+    min-width: 0;
+  }
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+@layer components {
+  .card {
+    @apply min-w-0 rounded-2xl border border-white/[.025] bg-surface shadow-[0_4px_12px_#00000008];
+  }
+  :root[data-theme='light'] .card {
+    border-color: var(--border);
+  }
+  .btn {
+    @apply inline-flex min-h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply bg-gradient-to-r from-[#8780ff] to-[#6924dc] text-white shadow-[0_4px_20px_#8074ff20] hover:brightness-110;
+  }
+  .btn-secondary {
+    @apply bg-elevated text-foreground hover:bg-accent/15;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-muted hover:bg-elevated hover:text-foreground;
+  }
+  .icon-button {
+    @apply inline-flex size-9 items-center justify-center rounded-lg text-muted hover:bg-elevated hover:text-foreground;
+  }
+  .field {
+    @apply flex min-h-11 w-full items-center gap-3 rounded-xl border border-transparent bg-input px-3.5 text-sm text-foreground transition-colors focus-within:border-accent/60;
+  }
+  .field input {
+    @apply min-w-0 flex-1 border-none bg-transparent py-3 outline-none placeholder:text-subtle;
+  }
+  .field svg {
+    @apply text-muted;
+  }
+  .select {
+    @apply min-h-11 rounded-xl border border-transparent bg-input px-3 text-[13px] text-foreground outline-none focus:border-accent/60;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-elevated px-2 py-1 text-[11px] font-medium leading-none text-accent-soft;
+  }
+  .section-description {
+    @apply mt-1 text-[13px] leading-relaxed text-muted;
+  }
+  .table-wrap {
+    @apply relative w-full overflow-x-auto;
+  }
+  .data-table {
+    @apply w-full border-collapse text-left text-[13px];
+  }
+  .data-table th {
+    @apply whitespace-nowrap px-4 py-4 text-[10px] font-semibold uppercase tracking-wide text-muted;
+  }
+  .data-table td {
+    @apply border-t border-border/40 px-4 py-5;
+  }
+  .data-table tbody tr {
+    @apply transition-colors hover:bg-elevated/30;
+  }
+  .page-stack {
+    @apply space-y-7;
+  }
+  .stat-value {
+    @apply font-display text-[42px] font-bold leading-tight tracking-[-1.5px];
+  }
+  .progress-track {
+    @apply h-1.5 overflow-hidden rounded-full bg-elevated;
+  }
+  .progress-fill {
+    @apply h-full rounded-full bg-accent-soft;
+  }
+  .eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[.06em] text-muted;
+  }
+  .text-link {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium text-accent-soft hover:text-accent;
+  }
+  .chart-tooltip {
+    @apply rounded-xl border border-border bg-elevated px-3 py-2 text-xs shadow-xl;
+  }
+}
+
+.sidebar {
+  width: 248px;
+}
+.app-main {
+  margin-left: 248px;
+}
+.page-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 30px 28px 36px;
+}
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+  font-size: 11px;
+}
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+.auth-background {
+  background:
+    radial-gradient(ellipse at 3% 5%, #8780ff20 0%, transparent 40%),
+    radial-gradient(ellipse at 100% 90%, #7024dc20 0%, transparent 40%), var(--background);
+}
+.auth-background aside {
+  min-width: 0;
+}
+.auth-background aside > section > div:first-child {
+  flex-wrap: wrap;
+}
+.animate-enter {
+  animation: enter 0.22s ease-out;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 1600px) {
+  .page-content {
+    padding: 36px 40px;
+  }
+}
+@media (max-width: 1023px) {
+  .sidebar {
+    width: 260px;
+  }
+  .app-main {
+    margin-left: 0;
+  }
+  .page-content {
+    padding: 24px 20px;
+  }
+}
+@media (max-width: 639px) {
+  .page-content {
+    padding: 24px 16px;
+  }
+  .stat-value {
+    font-size: 32px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

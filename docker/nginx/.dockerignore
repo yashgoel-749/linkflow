@@ -1,0 +1,8 @@
+**
+!Dockerfile
+!.dockerignore
+!start.sh
+!templates/
+!templates/**
+!snippets/
+!snippets/**

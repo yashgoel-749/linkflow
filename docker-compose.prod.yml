@@ -1,0 +1,43 @@
+# Explicit override: docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+name: ${DOCKER_PROJECT_NAME:-linkflow-production}
+services:
+  backend:
+    environment:
+      NODE_ENV: production
+      PUBLIC_BASE_URL: ${DOCKER_PUBLIC_BASE_URL:?Set your HTTPS public origin}
+      FRONTEND_ORIGIN: ${DOCKER_PUBLIC_BASE_URL:?Set your HTTPS public origin}
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 512M}
+  migrate:
+    environment:
+      NODE_ENV: production
+      PUBLIC_BASE_URL: ${DOCKER_PUBLIC_BASE_URL:?Set your HTTPS public origin}
+      FRONTEND_ORIGIN: ${DOCKER_PUBLIC_BASE_URL:?Set your HTTPS public origin}
+  frontend:
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 128M}
+  postgres:
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 1G}
+  redis:
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 256M}
+  nginx:
+    environment:
+      PROXY_MODE: production
+      PUBLIC_BASE_URL: ${DOCKER_PUBLIC_BASE_URL:?Set your HTTPS public origin}
+    ports: !override
+      - "${DOCKER_HTTP_BIND:-0.0.0.0}:${DOCKER_HTTP_PORT:-80}:8080"
+      - "${DOCKER_HTTPS_BIND:-0.0.0.0}:${DOCKER_HTTPS_PORT:-443}:8443"
+    secrets: [tls_cert, tls_key]
+    group_add: ["${DOCKER_SECRET_GID:-1000}"]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 128M}
+secrets:
+  tls_cert: {file: "${DOCKER_TLS_CERT_FILE:?Set certificate file path}"}
+  tls_key: {file: "${DOCKER_TLS_KEY_FILE:?Set private key file path}"}

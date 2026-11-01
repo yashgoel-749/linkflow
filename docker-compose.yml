@@ -1,0 +1,234 @@
+name: ${DOCKER_PROJECT_NAME:-linkflow-docker}
+
+x-backend-env: &backend-env
+  NODE_ENV: development
+  PORT: '3001'
+  DB_HOST: postgres
+  DB_PORT: '5432'
+  DB_NAME: ${DOCKER_DB_NAME:-linkflow}
+  DB_USER: ${DOCKER_DB_USER:-linkflow}
+  DB_PASSWORD_FILE: /run/secrets/db_password
+  REDIS_HOST: redis
+  REDIS_PORT: '6379'
+  REDIS_PASSWORD_FILE: /run/secrets/redis_password
+  REDIS_NAMESPACE: ${DOCKER_PROJECT_NAME:-linkflow-docker}
+  JWT_SECRET_FILE: /run/secrets/jwt_secret
+  VISITOR_SECRET_FILE: /run/secrets/visitor_secret
+  PUBLIC_BASE_URL: ${DOCKER_PUBLIC_BASE_URL:-http://localhost:8080}
+  FRONTEND_ORIGIN: ${DOCKER_PUBLIC_BASE_URL:-http://localhost:8080}
+
+x-backend-secrets: &backend-secrets
+  - db_password
+  - redis_password
+  - jwt_secret
+  - visitor_secret
+
+x-backend-build: &backend-build
+  context: ./server
+  dockerfile: Dockerfile
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    user: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      LINKFLOW_DB_USER: ${DOCKER_DB_USER:-linkflow}
+      LINKFLOW_DB_NAME: ${DOCKER_DB_NAME:-linkflow}
+      LINKFLOW_TEST_DB_NAME: linkflow_test
+      LINKFLOW_DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [postgres_admin_password, db_password]
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sh:/docker-entrypoint-initdb.d/10-linkflow.sh:ro
+    tmpfs: [/tmp, /var/run/postgresql]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging: &logging
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+
+  redis:
+    image: redis:7.4-alpine
+    user: redis
+    restart: unless-stopped
+    command: [sh, /etc/linkflow/start.sh]
+    secrets: [redis_password]
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/start.sh:/etc/linkflow/start.sh:ro
+      - ./docker/redis/health.sh:/etc/linkflow/health.sh:ro
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+    healthcheck:
+      test: [CMD, sh, /etc/linkflow/health.sh]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    logging: *logging
+
+  migrate:
+    build: { <<: *backend-build, target: migrate }
+    restart: 'no'
+    environment: *backend-env
+    secrets: *backend-secrets
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+    depends_on:
+      postgres: { condition: service_healthy }
+    logging: *logging
+
+  backend:
+    build: { <<: *backend-build, target: runtime }
+    restart: unless-stopped
+    init: true
+    environment:
+      <<: *backend-env
+      TRUST_PROXY_IP: ${DOCKER_PROXY_IP:-172.30.240.2}
+    secrets: *backend-secrets
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [proxy, data]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      postgres: { condition: service_healthy, restart: true }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 20s
+    logging: *logging
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: { VITE_API_URL: /api }
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [web]
+    logging: *logging
+
+  nginx:
+    build: ./docker/nginx
+    restart: unless-stopped
+    environment:
+      PROXY_MODE: local
+      PUBLIC_BASE_URL: ${DOCKER_PUBLIC_BASE_URL:-http://localhost:8080}
+    ports:
+      - '${DOCKER_HTTP_BIND:-127.0.0.1}:${DOCKER_HTTP_PORT:-8080}:8080'
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks:
+      web:
+      proxy: { ipv4_address: '${DOCKER_PROXY_IP:-172.30.240.2}' }
+    depends_on:
+      backend: { condition: service_healthy }
+      frontend: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1:8080/nginx-health']
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    logging: *logging
+
+  migrate-test:
+    profiles: [test]
+    build: { <<: *backend-build, target: migrate }
+    restart: 'no'
+    environment:
+      <<: *backend-env
+      DB_NAME: linkflow_test
+    secrets: *backend-secrets
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api-tests:
+    profiles: [test]
+    build: { <<: *backend-build, target: test }
+    restart: 'no'
+    environment:
+      <<: *backend-env
+      NODE_ENV: test
+      TEST_DATABASE_NAME: linkflow_test
+      REDIS_NAMESPACE: '${DOCKER_PROJECT_NAME:-linkflow-docker}:tests'
+      FRONTEND_ORIGIN: http://localhost:5173,http://localhost:4173
+      PUBLIC_BASE_URL: http://localhost:3001
+    secrets: *backend-secrets
+    group_add: ['${DOCKER_SECRET_GID:-1000}']
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+    depends_on:
+      migrate-test: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+networks:
+  web: { internal: true }
+  proxy:
+    ipam:
+      config:
+        - subnet: '${DOCKER_PROXY_SUBNET:-172.30.240.0/28}'
+          ip_range: '${DOCKER_PROXY_DYNAMIC_RANGE:-172.30.240.8/29}'
+  data: { internal: true }
+
+volumes:
+  postgres_data:
+  redis_data:
+
+secrets:
+  postgres_admin_password:
+    file: ${DOCKER_POSTGRES_ADMIN_PASSWORD_FILE:-./.local/docker-secrets/postgres_admin_password}
+  db_password:
+    file: ${DOCKER_DB_PASSWORD_FILE:-./.local/docker-secrets/db_password}
+  redis_password:
+    file: ${DOCKER_REDIS_PASSWORD_FILE:-./.local/docker-secrets/redis_password}
+  jwt_secret:
+    file: ${DOCKER_JWT_SECRET_FILE:-./.local/docker-secrets/jwt_secret}
+  visitor_secret:
+    file: ${DOCKER_VISITOR_SECRET_FILE:-./.local/docker-secrets/visitor_secret}

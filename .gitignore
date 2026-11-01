@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.local
+playwright-report/
+test-results/
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.test.example
+!.env.production.example
+.local/
+server/coverage/
+design_reference/
